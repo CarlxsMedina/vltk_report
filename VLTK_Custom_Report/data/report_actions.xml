@@ -17,4 +17,12 @@
         <field name="binding_model_id" ref="account.model_account_move"/>
         <field name="binding_type">report</field>
     </record>
+
+    <!-- Override default quotation/sale order report -->
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
+        <field name="name">Cotización / Orden de Venta</field>
+        <field name="report_name">VLTK_Custom_Report.report_quotation_vltk</field>
+        <field name="report_file">VLTK_Custom_Report.report_quotation_vltk</field>
+        <field name="paperformat_id" ref="VLTK_Custom_Report.paperformat_vltk"/>
+    </record>
 </odoo>

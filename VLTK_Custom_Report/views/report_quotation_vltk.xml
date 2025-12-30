@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_quotation_vltk">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="VLTK_Custom_Report.external_layout_quotation_vltk">
+                    <t t-set="company" t-value="o.company_id"/>
+
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 15px;">
+
+                        <!-- Print styles -->
+                        <style>
+                            @media print {
+                                .gray-bg { background-color: #bfbfbf !important; -webkit-print-color-adjust: exact !important; }
+                                .bordered { border: 1px solid #000 !important; }
+                            }
+                        </style>
+
+                        <!-- Quotation Info -->
+                        <div class="row bordered" style="margin-bottom: 5px; padding: 8px; border: 1px solid #000 !important;">
+                            <div class="col-12" style="font-size: 12px; line-height: 1.6;">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div><b>Número de Cotización:</b> <t t-esc="o.name"/></div>
+                                        <div><b>Fecha de Cotización:</b> <t t-esc="o.date_order"/></div>
+                                        <div t-if="o.validity_date"><b>Válida hasta:</b> <t t-esc="o.validity_date"/></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div t-if="o.user_id"><b>Vendedor:</b> <t t-esc="o.user_id.name"/></div>
+                                        <div t-if="o.payment_term_id"><b>Términos de Pago:</b> <t t-esc="o.payment_term_id.name"/></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EMISOR & CLIENTE -->
+                        <div class="row" style="margin-bottom: 5px;">
+                            <div class="col-6 pe-1">
+                                <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">EMPRESA</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                    <div><b>Nombre:</b> <t t-esc="o.company_id.name"/></div>
+                                    <div><b>NIT:</b> <t t-esc="o.company_id.vat or 'N/A'"/></div>
+                                    <div><b>NRC:</b> <t t-esc="o.company_id.company_registry or 'N/A'"/></div>
+                                    <div><b>Dirección:</b> <t t-esc="o.company_id.street or 'N/A'"/></div>
+                                    <div><b>Teléfono:</b> <t t-esc="o.company_id.phone or 'N/A'"/></div>
+                                    <div><b>Email:</b> <t t-esc="o.company_id.email or 'N/A'"/></div>
+                                </div>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">CLIENTE</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                    <div><b>Nombre:</b> <t t-esc="o.partner_id.name"/></div>
+                                    <div><b>NIT/DUI:</b> <t t-esc="o.partner_id.vat or 'N/A'"/></div>
+                                    <div><b>Dirección:</b> <t t-esc="o.partner_id.street or 'N/A'"/></div>
+                                    <div><b>Teléfono:</b> <t t-esc="o.partner_id.phone or 'N/A'"/></div>
+                                    <div><b>Email:</b> <t t-esc="o.partner_id.email or 'N/A'"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRODUCTS TABLE -->
+                        <table class="table table-sm" style="border: 1px solid #000; margin-bottom: 5px; font-size: 13px;">
+                            <thead>
+                                <tr class="gray-bg" style="background-color: #bfbfbf !important; -webkit-print-color-adjust: exact;">
+                                    <th class="bordered text-center" style="border: 1px solid #000; width: 5%; padding: 2px;">No</th>
+                                    <th class="bordered" style="border: 1px solid #000; width: 45%; padding: 2px;">Descripción</th>
+                                    <th class="bordered text-center" style="border: 1px solid #000; width: 8%; padding: 2px;">Cant.</th>
+                                    <th class="bordered text-center" style="border: 1px solid #000; width: 7%; padding: 2px;">Unid.</th>
+                                    <th class="bordered text-end" style="border: 1px solid #000; width: 12%; padding: 2px;">Precio Unit.</th>
+                                    <th class="bordered text-end" style="border: 1px solid #000; width: 8%; padding: 2px;">Desc.%</th>
+                                    <th class="bordered text-end" style="border: 1px solid #000; width: 15%; padding: 2px;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_num" t-value="1"/>
+                                <tr t-foreach="o.order_line" t-as="line">
+                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
+                                    <td class="bordered" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.name"/></td>
+                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.product_uom_qty"/></td>
+                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom.name or 'UND'"/></td>
+                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
+                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.0f' % line.discount"/>%</td>
+                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- TÉRMINOS Y TOTALES -->
+                        <div class="row">
+                            <div class="col-7 pe-1">
+                                <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">TÉRMINOS Y CONDICIONES</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px; min-height: 80px;">
+                                    <div t-if="o.note">
+                                        <t t-esc="o.note"/>
+                                    </div>
+                                    <div t-else="">
+                                        <p>• Esta cotización tiene una validez de <t t-esc="o.validity_date and (o.validity_date - o.date_order).days or '30'"/> días.</p>
+                                        <p>• Los precios están sujetos a cambio sin previo aviso.</p>
+                                        <p>• Tiempo de entrega sujeto a disponibilidad en inventario.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5 ps-1">
+                                <div class="gray-bg bordered text-center" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 4px; -webkit-print-color-adjust: exact;">TOTALES</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 6px; font-size: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                        <span><b>Subtotal:</b></span>
+                                        <span><t t-esc="'$%.2f' % o.amount_untaxed"/></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                        <span><b>IVA (13%):</b></span>
+                                        <span><t t-esc="'$%.2f' % o.amount_tax"/></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; padding-top: 3px;">
+                                        <span><b>Total:</b></span>
+                                        <span><b><t t-esc="'$%.2f' % o.amount_total"/></b></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

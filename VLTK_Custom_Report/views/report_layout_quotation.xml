@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="external_layout_vltk" name="DTE VLTK">
+    <template id="external_layout_quotation_vltk" name="Quotation VLTK">
         
         <style>
             @media print {
-                .gray-bg { background-color: #d3d3d3 !important; -webkit-print-color-adjust: exact !important; }
+                .gray-bg { background-color: #bfbfbf !important; -webkit-print-color-adjust: exact !important; }
                 .bordered { border: 1px solid #000 !important; }
                 .table { border-collapse: collapse !important; }
                 .table td, .table th { border: 1px solid #000 !important; }
             }
-            .gray-bg { background-color: #d3d3d3 !important; }
+            .gray-bg { background-color: #bfbfbf !important; }
             .bordered { border: 1px solid #000 !important; }
         </style>
         
@@ -19,13 +19,11 @@
                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 110px;" alt="Logo"/>
                 </div>
                 <div class="col-9 text-center">
-                    <h4 style="font-weight: bold; margin: 0; color: #000;">DOCUMENTO TRIBUTARIO ELECTRÓNICO</h4>
+                    <h4 style="font-weight: bold; margin: 0; color: #000;">COTIZACIÓN</h4>
                     <div class="text-uppercase fw-bold" style="font-size: 16px;"><t t-esc="company.name"/></div>
                     <h5 style="font-weight: bold; margin-top: 5px;">
-                        <t t-if="o and 'l10n_latam_document_type_id' in o._fields and o.l10n_latam_document_type_id">
-                            <t t-esc="o.l10n_latam_document_type_id.report_name or 'FACTURA'"/>
-                        </t>
-                        <t t-else="">FACTURA</t>
+                        <t t-if="o and o.state == 'sale'">ORDEN DE VENTA</t>
+                        <t t-else="">PRESUPUESTO</t>
                     </h5>
                 </div>
             </div>
@@ -41,6 +39,6 @@
                 Sistema en Odoo - Implementado por <strong>Velatek S.A de C.V</strong>
             </div>
         </div>
-        
+       
     </template>
 </odoo>

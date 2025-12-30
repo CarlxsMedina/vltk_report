@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_invoice_document_vltk" t-name="VLTK_Custom_Report.report_invoice_document_vltk">
+    <template id="report_invoice_document_vltk">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="VLTK_Custom_Report.external_layout_vltk">
                     <t t-set="company" t-value="o.company_id"/>
-                    <div class="page" style="font-family: Arial, sans-serif; font-size: 15px; color: #000;">
-                        
+
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 15px;">
+
                         <!-- Print styles -->
                         <style>
                             @media print {
@@ -35,21 +36,29 @@
                         <!-- EMISOR & RECEPTOR -->
                         <div class="row" style="margin-bottom: 5px;">
                             <div class="col-6 pe-1">
-                                <div class="gray-bg bordered" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">EMISOR</div>
+                                <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">EMISOR</div>
                                 <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
                                     <div><b>Nombre:</b> <t t-esc="o.company_id.name"/></div>
                                     <div><b>NIT:</b> <t t-esc="o.company_id.vat or 'N/A'"/></div>
                                     <div><b>NRC:</b> <t t-esc="o.company_id.company_registry or 'N/A'"/></div>
-                                    <div><b>Actividad:</b> <t t-esc="o.company_id.partner_id.industry_id.name if o.company_id.partner_id.industry_id else 'N/A'"/></div>
                                     <div><b>Dirección:</b> <t t-esc="o.company_id.street or 'N/A'"/></div>
                                     <div><b>Teléfono:</b> <t t-esc="o.company_id.phone or 'N/A'"/></div>
                                 </div>
                             </div>
                             <div class="col-6 ps-1">
-                                <div class="gray-bg bordered" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">RECEPTOR</div>
+                                <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">RECEPTOR</div>
                                 <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
                                     <div><b>Nombre:</b> <t t-esc="o.partner_id.name"/></div>
                                     <div><b>NIT/DUI:</b> <t t-esc="o.partner_id.vat or 'N/A'"/></div>
+                                    <div t-if="o.partner_id.company_type == 'company' and o.partner_id.company_registry"><b>NRC:</b> <t t-esc="o.partner_id.company_registry"/></div>
+                                    <div t-else=""><b>NRC:</b> N/A</div>
+                                    <div t-if="o.partner_id.street or o.partner_id.street2">
+                                        <b>Dirección:</b> 
+                                        <t t-esc="o.partner_id.street"/>
+                                        <t t-if="o.partner_id.street2">, <t t-esc="o.partner_id.street2"/></t>
+                                        <t t-if="o.partner_id.city">, <t t-esc="o.partner_id.city"/></t>
+                                    </div>
+                                    <div t-else=""><b>Dirección:</b> N/A</div>
                                     <div><b>Teléfono:</b> <t t-esc="o.partner_id.phone or 'N/A'"/></div>
                                     <div><b>Correo:</b> <t t-esc="o.partner_id.email or 'N/A'"/></div>
                                 </div>
@@ -59,7 +68,7 @@
                         <!-- PRODUCTS TABLE -->
                         <table class="table table-sm" style="border: 1px solid #000; margin-bottom: 5px; font-size: 13px;">
                             <thead>
-                                <tr class="gray-bg" style="background-color: #d3d3d3 !important; -webkit-print-color-adjust: exact;">
+                                <tr class="gray-bg" style="background-color: #bfbfbf !important; -webkit-print-color-adjust: exact;">
                                     <th class="bordered text-center" style="border: 1px solid #000; width: 5%; padding: 2px;">No</th>
                                     <th class="bordered text-center" style="border: 1px solid #000; width: 8%; padding: 2px;">Cant.</th>
                                     <th class="bordered text-center" style="border: 1px solid #000; width: 7%; padding: 2px;">Unid.</th>
@@ -86,7 +95,7 @@
                         <!-- INFO ADICIONAL & TOTALES -->
                         <div class="row">
                             <div class="col-7 pe-1">
-                                <div class="gray-bg bordered" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">INFORMACIÓN ADICIONAL</div>
+                                <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">INFORMACIÓN ADICIONAL</div>
                                 <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
                                     <div><b>SON:</b> <t t-esc="o.get_amount_in_words_vltk()"/></div>
                                     <div t-if="o.tgr_informacion_adicional" style="margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 5px;">
@@ -95,16 +104,27 @@
                                 </div>
                             </div>
                             <div class="col-5 ps-1">
-                                <div class="gray-bg bordered text-center" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 4px; -webkit-print-color-adjust: exact;">TOTALES</div>
+                                <div class="gray-bg bordered text-center" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 4px; -webkit-print-color-adjust: exact;">TOTALES</div>
                                 <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 6px; font-size: 12px;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
                                         <span><b>Sub-Total:</b></span>
                                         <span><t t-esc="'$%.2f' % o.amount_untaxed"/></span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                        <span><b>IVA (13%):</b></span>
-                                        <span><t t-esc="'$%.2f' % o.amount_tax"/></span>
-                                    </div>
+                                    <!-- Show all taxes dynamically, but not for document type 01 -->
+                                    <t t-if="not (o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '01')">
+                                        <t t-set="tax_totals" t-value="{}"/>
+                                        <t t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)" t-as="tax_line">
+                                            <t t-set="tax_name" t-value="tax_line.tax_line_id.name"/>
+                                            <t t-set="tax_amount" t-value="tax_totals.get(tax_name, 0) + tax_line.price_subtotal"/>
+                                            <t t-set="dummy" t-value="tax_totals.update({tax_name: tax_amount})"/>
+                                        </t>
+                                        <t t-foreach="tax_totals.items()" t-as="tax_item">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                                <span><b><t t-esc="tax_item[0]"/>:</b></span>
+                                                <span><t t-esc="'$%.2f' % tax_item[1]"/></span>
+                                            </div>
+                                        </t>
+                                    </t>
                                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; padding-top: 3px;">
                                         <span><b>Total a Pagar:</b></span>
                                         <span><b><t t-esc="'$%.2f' % o.amount_total"/></b></span>

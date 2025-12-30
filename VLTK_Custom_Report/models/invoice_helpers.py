@@ -64,3 +64,78 @@ class AccountMoveVLTK(models.Model):
         # Codificar
         safe_value = urllib.parse.quote(target_url)
         return f"/report/barcode/?barcode_type=QR&value={safe_value}&width=115&height=115"
+
+    def _message_post_after_hook(self, message, msg_vals):
+        """
+        Override para agregar automáticamente el PDF VLTK y el JSON del DTE
+        cuando se envía un correo desde la factura.
+        """
+        res = super()._message_post_after_hook(message, msg_vals)
+        
+        # Solo procesar si es una factura/documento válido
+        if self.move_type not in ['out_invoice', 'out_refund']:
+            return res
+            
+        # Solo si el mensaje incluye adjuntos o es envío de factura
+        if not msg_vals.get('attachment_ids') and not self._context.get('mark_invoice_as_sent'):
+            return res
+        
+        attachments_to_add = []
+        
+        # 1. Generar y adjuntar el PDF del reporte VLTK
+        try:
+            report = self.env.ref('VLTK_Custom_Report.account_invoices_vltk_btn')
+            pdf_content, _ = report._render_qweb_pdf(report.report_name, self.ids)
+            
+            pdf_name = f"Factura_{self.name.replace('/', '_')}_VLTK.pdf"
+            pdf_attachment = self.env['ir.attachment'].create({
+                'name': pdf_name,
+                'type': 'binary',
+                'datas': pdf_content,
+                'res_model': self._name,
+                'res_id': self.id,
+                'mimetype': 'application/pdf'
+            })
+            attachments_to_add.append(pdf_attachment.id)
+        except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.warning(f"No se pudo adjuntar PDF VLTK para {self.name}: {e}")
+        
+        # 2. Buscar y adjuntar el archivo JSON del DTE si existe
+        try:
+            # Buscar el attachment del JSON DTE
+            json_attachment = self.env['ir.attachment'].search([
+                ('res_model', '=', self._name),
+                ('res_id', '=', self.id),
+                ('name', 'ilike', '.json'),
+                '|',
+                ('name', 'ilike', 'DTE'),
+                ('name', 'ilike', self.name.replace('/', '_'))
+            ], limit=1)
+            
+            if json_attachment:
+                attachments_to_add.append(json_attachment.id)
+            else:
+                # Si no encontramos como attachment, intentar desde el campo del módulo TGR
+                if hasattr(self, 'tgr_l10n_sv_edi_documento_json') and self.tgr_l10n_sv_edi_documento_json:
+                    json_name = f"DTE_{self.name.replace('/', '_')}.json"
+                    json_attachment = self.env['ir.attachment'].create({
+                        'name': json_name,
+                        'type': 'binary',
+                        'datas': self.tgr_l10n_sv_edi_documento_json,
+                        'res_model': self._name,
+                        'res_id': self.id,
+                        'mimetype': 'application/json'
+                    })
+                    attachments_to_add.append(json_attachment.id)
+        except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.warning(f"No se pudo adjuntar JSON DTE para {self.name}: {e}")
+        
+        # Agregar los attachments al mensaje
+        if attachments_to_add and message:
+            message.write({'attachment_ids': [(4, att_id) for att_id in attachments_to_add]})
+        
+        return res
