@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="external_layout_vltk" name="DTE VLTK">
+        <t t-call="web.basic_layout">
+            <div class="header" style="font-family: Arial, sans-serif !important;">
+                <div class="row pb-0">
+                    <div class="col-3">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 110px;" alt="Logo"/>
+                    </div>
+                    <div class="col-9 text-center">
+                        <h4 style="font-weight: bold; margin: 0; color: #000;">DOCUMENTO TRIBUTARIO ELECTRÓNICO</h4>
+                        <div class="text-uppercase fw-bold" style="font-size: 16px;"><t t-esc="company.name"/></div>
+                        <h5 style="font-weight: bold; margin-top: 5px;">
+                            <t t-if="o and 'l10n_latam_document_type_id' in o._fields and o.l10n_latam_document_type_id">
+                                <t t-esc="o.l10n_latam_document_type_id.report_name or 'FACTURA'"/>
+                            </t>
+                            <t t-else="">FACTURA</t>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" style="padding-top: 0px !important;">
+                <t t-out="0"/>
+            </div>
+
+            <div class="footer o_standard_footer" style="border-top: 1px solid #000 !important; font-size: 10px;">
+                <div class="text-center text-muted pt-2">
+                    Página: <span class="page"/> / <span class="topage"/> | 
+                    Sistema en Odoo - Implementado por <strong>Velatek S.A de C.V</strong>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

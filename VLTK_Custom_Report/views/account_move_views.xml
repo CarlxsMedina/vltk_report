@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_vltk_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.vltk.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar botón de descarga en el header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_print_vltk_report" 
+                        string="Descargar PDF (VLTK)" 
+                        type="object" 
+                        class="btn-primary"
+                        invisible="state != 'posted'"/>
+            </xpath>
+
+            <!-- Agregar campo de información adicional -->
+            <xpath expr="//sheet" position="inside">
+                <group string="Información Adicional para Reporte">
+                    <field name="tgr_informacion_adicional"
+                        widget="text"
+                        placeholder="Ingrese información adicional que aparecerá en el PDF del DTE..."
+                        nolabel="0"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Server Action para el botón -->
+    <record id="action_print_vltk_report_server" model="ir.actions.server">
+        <field name="name">Descargar PDF VLTK</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = record.action_print_vltk_report()
+        </field>
+    </record>
+</odoo>

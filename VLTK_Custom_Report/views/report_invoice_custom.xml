@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_vltk" t-name="VLTK_Custom_Report.report_invoice_document_vltk">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="VLTK_Custom_Report.external_layout_vltk">
+                    <t t-set="company" t-value="o.company_id"/>
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 15px; color: #000;">
+                        
+                        <!-- Print styles -->
+                        <style>
+                            @media print {
+                                .gray-bg { background-color: #bfbfbf !important; -webkit-print-color-adjust: exact !important; }
+                                .bordered { border: 1px solid #000 !important; }
+                            }
+                        </style>
+
+                        <!-- DTE Info + QR Code -->
+                        <div class="row bordered" style="margin-bottom: 5px; padding: 8px; border: 1px solid #000 !important;">
+                            <div class="col-8" style="font-size: 12px; line-height: 1.6;">
+                                <div><b>Código de Generación:</b> <t t-if="o.tgr_l10n_sv_edi_codigo_generacion"><t t-esc="o.tgr_l10n_sv_edi_codigo_generacion"/></t><t t-else="">N/A</t></div>
+                                <div><b>Número de Control:</b> <t t-if="o.tgr_l10n_sv_edi_numero_control"><t t-esc="o.tgr_l10n_sv_edi_numero_control"/></t><t t-else="">N/A</t></div>
+                                <div><b>Sello de Recepción:</b> <t t-if="o.tgr_l10n_sv_edi_sello_recibido"><t t-esc="o.tgr_l10n_sv_edi_sello_recibido"/></t><t t-else="">N/A</t></div>
+                                <div><b>Modelo de Facturación:</b> 1 | <b>Tipo de Transmisión:</b> 1</div>
+                                <div><b>Fecha de Emisión:</b> <t t-esc="o.invoice_date"/></div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <t t-if="o.tgr_l10n_sv_edi_codigo_generacion">
+                                    <img style="width: 115px; height: 115px; border: 1px solid #000;" 
+                                         t-att-src="o.get_vltk_qr_code_url()"/>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- EMISOR & RECEPTOR -->
+                        <div class="row" style="margin-bottom: 5px;">
+                            <div class="col-6 pe-1">
+                                <div class="gray-bg bordered" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">EMISOR</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                    <div><b>Nombre:</b> <t t-esc="o.company_id.name"/></div>
+                                    <div><b>NIT:</b> <t t-esc="o.company_id.vat or 'N/A'"/></div>
+                                    <div><b>NRC:</b> <t t-esc="o.company_id.company_registry or 'N/A'"/></div>
+                                    <div><b>Actividad:</b> <t t-esc="o.company_id.partner_id.industry_id.name if o.company_id.partner_id.industry_id else 'N/A'"/></div>
+                                    <div><b>Dirección:</b> <t t-esc="o.company_id.street or 'N/A'"/></div>
+                                    <div><b>Teléfono:</b> <t t-esc="o.company_id.phone or 'N/A'"/></div>
+                                </div>
+                            </div>
+                            <div class="col-6 ps-1">
+                                <div class="gray-bg bordered" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">RECEPTOR</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                    <div><b>Nombre:</b> <t t-esc="o.partner_id.name"/></div>
+                                    <div><b>NIT/DUI:</b> <t t-esc="o.partner_id.vat or 'N/A'"/></div>
+                                    <div><b>Teléfono:</b> <t t-esc="o.partner_id.phone or 'N/A'"/></div>
+                                    <div><b>Correo:</b> <t t-esc="o.partner_id.email or 'N/A'"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRODUCTS TABLE -->
+                        <table class="table table-sm" style="border: 1px solid #000; margin-bottom: 5px; font-size: 13px;">
+                            <thead>
+                                <tr class="gray-bg" style="background-color: #d3d3d3 !important; -webkit-print-color-adjust: exact;">
+                                    <th class="bordered text-center" style="border: 1px solid #000; width: 5%; padding: 2px;">No</th>
+                                    <th class="bordered text-center" style="border: 1px solid #000; width: 8%; padding: 2px;">Cant.</th>
+                                    <th class="bordered text-center" style="border: 1px solid #000; width: 7%; padding: 2px;">Unid.</th>
+                                    <th class="bordered" style="border: 1px solid #000; width: 45%; padding: 2px;">Descripción</th>
+                                    <th class="bordered text-end" style="border: 1px solid #000; width: 12%; padding: 2px;">Precio Unit.</th>
+                                    <th class="bordered text-end" style="border: 1px solid #000; width: 8%; padding: 2px;">Desc.</th>
+                                    <th class="bordered text-end" style="border: 1px solid #000; width: 15%; padding: 2px;">Gravadas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_num" t-value="1"/>
+                                <tr t-foreach="o.invoice_line_ids" t-as="line">
+                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
+                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.quantity"/></td>
+                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom_id.name or 'UND'"/></td>
+                                    <td class="bordered" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.name"/></td>
+                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
+                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;">0.00</td>
+                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- INFO ADICIONAL & TOTALES -->
+                        <div class="row">
+                            <div class="col-7 pe-1">
+                                <div class="gray-bg bordered" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">INFORMACIÓN ADICIONAL</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                    <div><b>SON:</b> <t t-esc="o.get_amount_in_words_vltk()"/></div>
+                                    <div t-if="o.tgr_informacion_adicional" style="margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 5px;">
+                                        <t t-esc="o.tgr_informacion_adicional"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5 ps-1">
+                                <div class="gray-bg bordered text-center" style="background-color: #d3d3d3 !important; border: 1px solid #000 !important; font-weight: bold; padding: 4px; -webkit-print-color-adjust: exact;">TOTALES</div>
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 6px; font-size: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                        <span><b>Sub-Total:</b></span>
+                                        <span><t t-esc="'$%.2f' % o.amount_untaxed"/></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                        <span><b>IVA (13%):</b></span>
+                                        <span><t t-esc="'$%.2f' % o.amount_tax"/></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; padding-top: 3px;">
+                                        <span><b>Total a Pagar:</b></span>
+                                        <span><b><t t-esc="'$%.2f' % o.amount_total"/></b></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
