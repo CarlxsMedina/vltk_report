@@ -6,7 +6,7 @@
                 <t t-call="VLTK_Custom_Report.external_layout_vltk">
                     <t t-set="company" t-value="o.company_id"/>
 
-                    <div class="page" style="font-family: Arial, sans-serif; font-size: 15px;">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 19px;">
 
                         <!-- Print styles -->
                         <style>
@@ -18,7 +18,7 @@
 
                         <!-- DTE Info + QR Code -->
                         <div class="row bordered" style="margin-bottom: 5px; padding: 8px; border: 1px solid #000 !important;">
-                            <div class="col-8" style="font-size: 12px; line-height: 1.6;">
+                            <div class="col-8" style="font-size: 15px; line-height: 1.6;">
                                 <div><b>Código de Generación:</b> <t t-if="o.tgr_l10n_sv_edi_codigo_generacion"><t t-esc="o.tgr_l10n_sv_edi_codigo_generacion"/></t><t t-else="">N/A</t></div>
                                 <div><b>Número de Control:</b> <t t-if="o.tgr_l10n_sv_edi_numero_control"><t t-esc="o.tgr_l10n_sv_edi_numero_control"/></t><t t-else="">N/A</t></div>
                                 <div><b>Sello de Recepción:</b> <t t-if="o.tgr_l10n_sv_edi_sello_recibido"><t t-esc="o.tgr_l10n_sv_edi_sello_recibido"/></t><t t-else="">N/A</t></div>
@@ -37,17 +37,18 @@
                         <div class="row" style="margin-bottom: 5px;">
                             <div class="col-6 pe-1">
                                 <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">EMISOR</div>
-                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 15px;">
                                     <div><b>Nombre:</b> <t t-esc="o.company_id.name"/></div>
                                     <div><b>NIT:</b> <t t-esc="o.company_id.vat or 'N/A'"/></div>
                                     <div><b>NRC:</b> <t t-esc="o.company_id.company_registry or 'N/A'"/></div>
                                     <div><b>Dirección:</b> <t t-esc="o.company_id.street or 'N/A'"/></div>
                                     <div><b>Teléfono:</b> <t t-esc="o.company_id.phone or 'N/A'"/></div>
+                                    <div><b>Correo:</b> <t t-esc="o.company_id.email or 'N/A'"/></div>
                                 </div>
                             </div>
                             <div class="col-6 ps-1">
                                 <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">RECEPTOR</div>
-                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 15px;">
                                     <div><b>Nombre:</b> <t t-esc="o.partner_id.name"/></div>
                                     <div><b>NIT/DUI:</b> <t t-esc="o.partner_id.vat or 'N/A'"/></div>
                                     <div t-if="o.partner_id.company_type == 'company' and o.partner_id.company_registry"><b>NRC:</b> <t t-esc="o.partner_id.company_registry"/></div>
@@ -66,7 +67,7 @@
                         </div>
 
                         <!-- PRODUCTS TABLE -->
-                        <table class="table table-sm" style="border: 1px solid #000; margin-bottom: 5px; font-size: 13px;">
+                        <table class="table table-sm" style="border: 1px solid #000; margin-bottom: 5px; font-size: 16px;">
                             <thead>
                                 <tr class="gray-bg" style="background-color: #bfbfbf !important; -webkit-print-color-adjust: exact;">
                                     <th class="bordered text-center" style="border: 1px solid #000; width: 5%; padding: 2px;">No</th>
@@ -84,7 +85,15 @@
                                     <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
                                     <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.quantity"/></td>
                                     <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom_id.name or 'UND'"/></td>
-                                    <td class="bordered" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.name"/></td>
+                                    <td class="bordered" style="border: 1px solid #000; padding: 2px;">
+                                        <!-- Show product name without code, fallback to line name -->
+                                        <t t-if="line.product_id">
+                                            <t t-esc="line.product_id.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="line.name"/>
+                                        </t>
+                                    </td>
                                     <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
                                     <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;">0.00</td>
                                     <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
@@ -96,36 +105,61 @@
                         <div class="row">
                             <div class="col-7 pe-1">
                                 <div class="gray-bg bordered" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 2px; -webkit-print-color-adjust: exact;">INFORMACIÓN ADICIONAL</div>
-                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 12px;">
-                                    <div><b>SON:</b> <t t-esc="o.get_amount_in_words_vltk()"/></div>
-                                    <div t-if="o.tgr_informacion_adicional" style="margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 5px;">
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 4px; font-size: 15px;">
+                                    <div t-if="o.tgr_informacion_adicional" style="margin-bottom: 5px;">
                                         <t t-esc="o.tgr_informacion_adicional"/>
+                                    </div>
+                                    <div style="border-top: 1px dashed #ccc; padding-top: 5px;">
+                                        <b>SON:</b> <t t-esc="o.get_amount_in_words_vltk()"/>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-5 ps-1">
                                 <div class="gray-bg bordered text-center" style="background-color: #bfbfbf !important; border: 1px solid #000 !important; font-weight: bold; padding: 4px; -webkit-print-color-adjust: exact;">TOTALES</div>
-                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 6px; font-size: 12px;">
+                                <div class="bordered" style="border: 1px solid #000 !important; border-top: none !important; padding: 6px; font-size: 15px;">
+                                    <!-- NEW LOGIC: Calculate taxes always, but handle visibility per row -->
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                        <span><b>Sub-Total:</b></span>
+                                        <span><b>Importe base:</b></span>
                                         <span><t t-esc="'$%.2f' % o.amount_untaxed"/></span>
                                     </div>
-                                    <!-- Show all taxes dynamically, but not for document type 01 -->
-                                    <t t-if="not (o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '01')">
-                                        <t t-set="tax_totals" t-value="{}"/>
-                                        <t t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)" t-as="tax_line">
-                                            <t t-set="tax_name" t-value="tax_line.tax_line_id.name"/>
-                                            <t t-set="tax_amount" t-value="tax_totals.get(tax_name, 0) + tax_line.price_subtotal"/>
-                                            <t t-set="dummy" t-value="tax_totals.update({tax_name: tax_amount})"/>
+                                    
+                                    <!-- Calculate consolidated taxes -->
+                                    <t t-set="tax_dict" t-value="{}"/>
+                                    <t t-foreach="o.line_ids.filtered(lambda x: x.tax_line_id)" t-as="tax_line">
+                                        <t t-set="raw_name" t-value="tax_line.name or tax_line.tax_line_id.name"/>
+                                        
+                                        <!-- Normalize tax names to 'IVA' -->
+                                        <t t-if="'13%' in raw_name or 'FCF' in raw_name or 'Contribuyentes' in raw_name">
+                                            <t t-set="display_name" t-value="'IVA'"/>
                                         </t>
-                                        <t t-foreach="tax_totals.items()" t-as="tax_item">
+                                        <t t-else="">
+                                            <t t-set="display_name" t-value="raw_name"/>
+                                        </t>
+                                        
+                                        <t t-set="current_amount" t-value="tax_dict.get(display_name, 0.0)"/>
+                                        <!-- balance is inverted for taxes usually (credit), so subtraction adds it up as positive liability -->
+                                        <t t-set="new_amount" t-value="current_amount - tax_line.balance"/>
+                                        <t t-set="dummy" t-value="tax_dict.update({display_name: new_amount})"/>
+                                    </t>
+                                    
+                                    <!-- Display taxes loop -->
+                                    <t t-foreach="sorted(tax_dict.items())" t-as="tax_item">
+                                        <t t-set="t_label" t-value="tax_item[0]"/>
+                                        <t t-set="t_val" t-value="tax_item[1]"/>
+                                        
+                                        <!-- Visibility logic: Hide IVA if Doc Type is 01 -->
+                                        <t t-set="is_iva" t-value="t_label == 'IVA'"/>
+                                        <t t-set="is_doc_01" t-value="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '01'"/>
+                                        
+                                        <t t-if="not (is_iva and is_doc_01)">
                                             <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                                <span><b><t t-esc="tax_item[0]"/>:</b></span>
-                                                <span><t t-esc="'$%.2f' % tax_item[1]"/></span>
+                                                <span><b><t t-esc="t_label"/>:</b></span>
+                                                <span><t t-esc="'$%.2f' % t_val"/></span>
                                             </div>
                                         </t>
                                     </t>
-                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; padding-top: 3px;">
+                                    <!-- Total line -->
+                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; padding-top: 3px; margin-top: 3px;">
                                         <span><b>Total a Pagar:</b></span>
                                         <span><b><t t-esc="'$%.2f' % o.amount_total"/></b></span>
                                     </div>
