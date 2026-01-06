@@ -73,15 +73,36 @@
                             </thead>
                             <tbody>
                                 <t t-set="line_num" t-value="1"/>
-                                <tr t-foreach="o.order_line" t-as="line">
-                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
-                                    <td class="bordered" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.name"/></td>
-                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.product_uom_qty"/></td>
-                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom.name or 'UND'"/></td>
-                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
-                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.0f' % line.discount"/>%</td>
-                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
-                                </tr>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <!-- Section headers: gray background, bold, full width -->
+                                    <t t-if="line.display_type == 'line_section'">
+                                        <tr>
+                                            <td colspan="7" class="bordered gray-bg" style="border: 1px solid #000; padding: 4px; background-color: #e0e0e0 !important; font-weight: bold; -webkit-print-color-adjust: exact;">
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Notes: italic, full width -->
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <tr>
+                                            <td colspan="7" class="bordered" style="border: 1px solid #000; padding: 4px; font-style: italic;">
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Regular product lines -->
+                                    <t t-else="">
+                                        <tr>
+                                            <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
+                                            <td class="bordered" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.name"/></td>
+                                            <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.product_uom_qty"/></td>
+                                            <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom.name or 'UND'"/></td>
+                                            <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
+                                            <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.0f' % line.discount"/>%</td>
+                                            <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
                             </tbody>
                         </table>
 
@@ -94,7 +115,7 @@
                                         <t t-esc="o.note"/>
                                     </div>
                                     <div t-else="">
-                                        <p>• Esta cotización tiene una validez de <t t-esc="o.validity_date and (o.validity_date - o.date_order).days or '30'"/> días.</p>
+                                        <p>• Esta cotización tiene una validez de <t t-esc="o.validity_date and (o.validity_date - o.date_order.date()).days or '30'"/> días.</p>
                                         <p>• Los precios están sujetos a cambio sin previo aviso.</p>
                                         <p>• Tiempo de entrega sujeto a disponibilidad en inventario.</p>
                                     </div>

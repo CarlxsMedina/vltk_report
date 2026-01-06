@@ -81,23 +81,44 @@
                             </thead>
                             <tbody>
                                 <t t-set="line_num" t-value="1"/>
-                                <tr t-foreach="o.invoice_line_ids" t-as="line">
-                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
-                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.quantity"/></td>
-                                    <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom_id.name or 'UND'"/></td>
-                                    <td class="bordered" style="border: 1px solid #000; padding: 2px;">
-                                        <!-- Show product name without code, fallback to line name -->
-                                        <t t-if="line.product_id">
-                                            <t t-esc="line.product_id.name"/>
-                                        </t>
-                                        <t t-else="">
-                                            <t t-esc="line.name"/>
-                                        </t>
-                                    </td>
-                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
-                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;">0.00</td>
-                                    <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
-                                </tr>
+                                <t t-foreach="o.invoice_line_ids" t-as="line">
+                                    <!-- Section headers: gray background, bold, full width -->
+                                    <t t-if="line.display_type == 'line_section'">
+                                        <tr>
+                                            <td colspan="7" class="bordered gray-bg" style="border: 1px solid #000; padding: 4px; background-color: #e0e0e0 !important; font-weight: bold; -webkit-print-color-adjust: exact;">
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Notes: italic, full width -->
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <tr>
+                                            <td colspan="7" class="bordered" style="border: 1px solid #000; padding: 4px; font-style: italic;">
+                                                <t t-esc="line.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Regular product lines -->
+                                    <t t-else="">
+                                        <tr>
+                                            <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line_num"/><t t-set="line_num" t-value="line_num + 1"/></td>
+                                            <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="'%.2f' % line.quantity"/></td>
+                                            <td class="bordered text-center" style="border: 1px solid #000; padding: 2px;"><t t-esc="line.product_uom_id.name or 'UND'"/></td>
+                                            <td class="bordered" style="border: 1px solid #000; padding: 2px;">
+                                                <!-- Show product name without code, fallback to line name -->
+                                                <t t-if="line.product_id">
+                                                    <t t-esc="line.product_id.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="line.name"/>
+                                                </t>
+                                            </td>
+                                            <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_unit"/></td>
+                                            <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;">0.00</td>
+                                            <td class="bordered text-end" style="border: 1px solid #000; padding: 2px;"><t t-esc="'$%.2f' % line.price_subtotal"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
                             </tbody>
                         </table>
 

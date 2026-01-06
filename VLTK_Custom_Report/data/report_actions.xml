@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Override default invoice report to use VLTK template -->
     <record id="account.account_invoices" model="ir.actions.report">
         <field name="name">PDF de la factura</field>
         <field name="report_name">VLTK_Custom_Report.report_invoice_document_vltk</field>
         <field name="report_file">VLTK_Custom_Report.report_invoice_document_vltk</field>
         <field name="paperformat_id" ref="VLTK_Custom_Report.paperformat_vltk"/>
-        <field name="binding_model_id" eval="False"/> </record>
+        <field name="binding_model_id" eval="False"/>
+    </record>
 
     <record id="account_invoices_vltk_btn" model="ir.actions.report">
         <field name="name">Imprimir DTE VLTK</field>
@@ -18,11 +20,24 @@
         <field name="binding_type">report</field>
     </record>
 
-    <!-- Override default quotation/sale order report -->
+    <!-- Override default quotation report to use VLTK template -->
     <record id="sale.action_report_saleorder" model="ir.actions.report">
-        <field name="name">Cotización / Orden de Venta</field>
+        <field name="name">Cotización / Orden</field>
         <field name="report_name">VLTK_Custom_Report.report_quotation_vltk</field>
         <field name="report_file">VLTK_Custom_Report.report_quotation_vltk</field>
         <field name="paperformat_id" ref="VLTK_Custom_Report.paperformat_vltk"/>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <!-- Custom quotation/sale order report action -->
+    <record id="sale_order_vltk_btn" model="ir.actions.report">
+        <field name="name">Imprimir Cotización VLTK</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">VLTK_Custom_Report.report_quotation_vltk</field>
+        <field name="report_file">VLTK_Custom_Report.report_quotation_vltk</field>
+        <field name="paperformat_id" ref="VLTK_Custom_Report.paperformat_vltk"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
     </record>
 </odoo>
